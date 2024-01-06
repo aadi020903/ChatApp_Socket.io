@@ -1,0 +1,165 @@
+<!-- homepage.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Application - Homepage</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Use min-height instead of height */
+      }
+
+      header {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      #welcomeBack {
+        font-size: 14px;
+        margin-right: 20px;
+      }
+
+      .container-fluid {
+        display: flex;
+        flex: 1;
+      }
+
+      .sidebar {
+        background-color: #343a40;
+        color: #fff;
+        padding: 20px;
+        width: 30%;
+        min-width: 200px; /* Added minimum width */
+      }
+
+      .main-content {
+        flex: 1;
+        padding: 20px;
+        position: relative;
+      }
+
+      .footer {
+        background-color: #007bff; /* Blue background color for the footer */
+        color: #fff;
+        text-align: center;
+        padding: 10px;
+        width: 100%;
+        flex-shrink: 0; /* Ensure the footer doesn't shrink */
+      }
+
+      .user-list {
+        overflow-y: auto;
+        max-height: calc(100vh - 150px);
+      }
+
+      .user-group {
+        margin-bottom: 20px;
+      }
+
+      .user {
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+
+      .user:hover {
+        background-color: #343a40;
+      }
+
+      #personalChatContainer {
+        display: none;
+        background-color: #fff;
+        padding: 20px;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header, Sidebar, Footer, and Main Content Structure -->
+    <header>
+      <div id="welcomeBack">Welcome Back <%= userName %></div>
+      <h1>Chat Application</h1>
+      <button onclick="logout()">Logout</button>
+    </header>
+
+    <div class="container-fluid">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="user-list">
+          <div class="user-group">
+            <h3>Users Online</h3>
+            <% users.forEach(user => { %> <% if (user.status === 'online') { %>
+            <div class="user" onclick="openChat('<%= user._id %>')">
+              <%= user.name %>
+            </div>
+            <% } %> <% }); %>
+          </div>
+          <div class="user-group">
+            <h3>Offline Users</h3>
+            <% users.forEach(user => { %> <% if (user.status === 'offline') { %>
+            <div class="user" onclick="openChat('<%= user._id %>')">
+              <%= user.name %>
+            </div>
+            <% } %> <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content (Chat Section) -->
+      <div class="main-content">
+        <!-- Placeholder for personal chat content -->
+        <div id="personalChatContainer"></div>
+        <!-- Chat messages and input form will go here -->
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">&copy; 2024 Chat Application</div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+      function openChat(otherUserId) {
+        // Fetch personal chat content dynamically and insert into personalChatContainer
+        $.ajax({
+          url: `/personal-chat/<%= userId %>/${otherUserId}`,
+          method: "GET",
+          success: function (data) {
+            $("#personalChatContainer").html(data);
+            $("#personalChatContainer").show();
+          },
+          error: function (error) {
+            console.error("Error fetching personal chat content:", error);
+          },
+        });
+      }
+
+      function logout() {
+        // Call the logout API and redirect to the login page
+        $.ajax({
+          url: `/logout/<%= userId %>`,
+          method: "GET",
+          success: function () {
+            window.location.href = "/";
+          },
+          error: function (error) {
+            console.error("Error logging out:", error);
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
